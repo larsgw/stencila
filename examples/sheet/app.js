@@ -8,16 +8,17 @@ import example from '../docs/simple-sheet'
 import { EditorSession } from 'substance'
 import { SheetEditor, SheetConfigurator, sheetConversion, CellEngine } from 'stencila'
 
-let configurator = new SheetConfigurator()
-let doc = sheetConversion.importHTML(wrapSnippet(example))
-let editorSession = new EditorSession(doc, {
-  configurator: configurator
-})
-
 window.addEventListener('load', () => {
+  let configurator = new SheetConfigurator()
+  let doc = sheetConversion.importHTML(wrapSnippet(example))
+  let editorSession = new EditorSession(doc, {
+    configurator: configurator
+  })
+  let cellEngine = new CellEngine(editorSession)
   window.doc = doc
   SheetEditor.mount({
     editorSession,
+    cellEngine,
     edit: true
   }, window.document.body)
 })

@@ -87,9 +87,6 @@ class SheetEngine extends Engine {
       let expr = parse(cell.getExpression())
       let entry = this._addExpression(expr)
       newVal = entry
-      entry.on('value:updated', () => {
-        cell.value = entry.getValue()
-      })
     }
     // store the value in the scope
     row[colIdx] = newVal
