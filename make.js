@@ -121,7 +121,7 @@ function buildStencilaNodeJS() {
 function buildExamples() {
   b.copy('./examples/*/*.html', './build/')
   //
-  ;['document', 'dashboard'].forEach((example) => {
+  ;['document', 'dashboard', 'sheet'].forEach((example) => {
     b.js(`examples/${example}/app.js`, {
       dest: `build/examples/${example}/app.js`,
       format: 'umd', moduleName: `${example}Example`,
