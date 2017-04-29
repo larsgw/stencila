@@ -6,6 +6,8 @@ export default {
   name: 'link',
   configure: function (config) {
     config.import(LinkPackage)
-    config.addMacro(new LinkMacro())
+    // TODO: Fix AnnotationMacro to deal with non-trivial macros
+    // In the meantime disable this macro
+    // config.addMacro(new LinkMacro())
   }
 }
