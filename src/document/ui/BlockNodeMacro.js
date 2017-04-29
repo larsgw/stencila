@@ -7,16 +7,15 @@ class BlockNodeMacro extends Macro {
     return ['paragraph']
   }
 
-  performAction (match, props, context) {
-    var surface = context.surfaceManager.getSurface(props.selection.surfaceId)
-    surface.transaction(function (tx, args) {
+  performAction (match, props) {
+    props.editorSession.transaction((tx,args) => {
       // Create the new node
       var newNode = tx.create(
         this.createNodeData(match)
       )
 
       // Hide the old node, show the new node
-      var container = tx.get(args.containerId)
+      var container = tx.get(args.selection.containerId)
       var pos = container.getPosition(props.node.id)
       if (pos >= 0) {
         container.hide(props.node.id)
@@ -25,16 +24,18 @@ class BlockNodeMacro extends Macro {
 
       // Delete the old node
       let editing = new Editing()
-      editing.deleteNode(tx, props.node.id, args.containerId)
+      editing.delete(tx, props.node.id, args.selection.containerId)
 
-      // Set the selection
+      // Set the cursor position to the end heading
       var path
       if (newNode.isText()) path = newNode.getTextPath()
       else path = [newNode.id]
-      args.selection = tx.createSelection(path, 0)
-
-      return args
-    }.bind(this))
+      tx.setSelection({
+        type: 'property',
+        path: path,
+        startOffset: 0
+      })
+    })
   }
 
 }

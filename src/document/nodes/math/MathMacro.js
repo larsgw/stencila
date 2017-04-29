@@ -12,7 +12,7 @@ class MathMacro extends InlineNodeMacro {
   }
 
   createNodeData (match) {
-    var source, language, display
+    var source, language
     if (match[2]) {
       source = match[2]
       language = 'asciimath'
@@ -26,8 +26,7 @@ class MathMacro extends InlineNodeMacro {
     return {
       type: 'math',
       source: source,
-      language: language,
-      display: display
+      language: language
     }
   }
 

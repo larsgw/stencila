@@ -1,37 +1,51 @@
-import { Editing } from 'substance'
 import Macro from './Macro'
 
 class AnnotationMacro extends Macro {
 
-  performAction (match, props, context) {
-    var surface = context.surfaceManager.getSurface(props.selection.surfaceId)
-    surface.transaction(function (tx, args) {
-      var data = this.createNodeData(match)
+  performAction (match, props) {
+    props.editorSession.transaction(tx => {
 
-      // Replace matched text
-      var selection = tx.createSelection(props.path, match.index, match.index + match[0].length)
-      let editing = new Editing()
-      var newText = editing.replaceText(tx, {
-        selection: selection,
-        text: data.text
+      // Selection for the macro text used to...
+      var selection = tx.createSelection({
+        type: 'property',
+        path: props.path, 
+        startOffset: match.index,
+        endOffset: match.index + match[0].length
+      })
+
+      // Delete the macro delimiters
+      tx.update(selection.path, {
+        type: 'delete',
+        start: selection.start.offset,
+        end: selection.start.offset + 1
+      })
+      tx.update(selection.path, {
+        type: 'delete',
+        start: selection.end.offset - 2,
+        end: selection.end.offset - 1
       })
 
       // Create annotation
-      data.path = newText.selection.path
-      data.startOffset = newText.selection.startOffset - newText.text.length
-      data.endOffset = newText.selection.endOffset
+      var data = this.createNodeData(match)
+      data.path = selection.path
+      data.startOffset = selection.start.offset
+      data.endOffset = selection.end.offset - 2
       tx.create(data)
 
-      // Insert a space to end the annotation
-      // CHECK Is there a better way to do this?
-      // When you create a selection at end of `newText` it is still annotated
-      tx.update(newText.selection.path, { insert: { offset: newText.selection.startOffset, value: ' ' } })
-
-      // Put selection just after annotation
-      args.selection = tx.createSelection(newText.selection.path, newText.selection.endOffset + 1)
-
-      return args
-    }.bind(this))
+      // Insert a space at end of the annotation and set selection 
+      // to after it so that the cursor is no longer 'within' the
+      // annotation
+      tx.update(selection.path, {
+        type: 'insert',
+        start: selection.end.offset - 2,
+        text: ' '
+      })
+      tx.setSelection({
+        type: 'property',
+        path: selection.path,
+        startOffset: selection.end.offset - 1
+      })
+    })
   }
 
 }

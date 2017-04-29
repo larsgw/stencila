@@ -5,7 +5,7 @@ import MathComponent from './MathComponent'
 import { EditInlineNodeCommand } from 'substance'
 import EditMathTool from './EditMathTool'
 import InsertMathCommand from './InsertMathCommand'
-// import MathMacro from './MathMacro'
+import MathMacro from './MathMacro'
 
 export default {
   name: 'math',
@@ -23,7 +23,8 @@ export default {
     })
     config.addTool('insert-math', Tool, { toolGroup: 'overlay' })
 
-    // config.addMacro(new MathMacro())
+    config.addMacro(new MathMacro())
+
     // TODO: Choose/create a better math icon (this is a random temporary)
     config.addIcon('insert-math', { 'fontawesome': 'fa-dollar' })
     config.addLabel('insert-math', 'Math')

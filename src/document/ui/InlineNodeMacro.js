@@ -5,24 +5,32 @@ import Macro from './Macro'
 class InlineNodeMacro extends Macro {
 
   performAction (match, props, context) {
-    // FIXME: this needs to ported to latest substance
-    // var surface = context.surfaceManager.getSurface(props.selection.surfaceId)
-    // surface.transaction(function (tx) {
-    //   var sel = tx.createSelection(props.path, match.index, match.index + match[0].length)
-    //   // Insert a new node (there is no need to delete the matched text, that is
-    //   // done for us)
-    //   let editing = new Editing()
-    //   editing.insertInlineNode(tx, {
-    //     selection: sel,
-    //     node: this.createNodeData(match)
-    //   })
-    //   if (props.action === 'type') {
-    //     // Move caret to just after the newly inserted node
-    //     return {
-    //       selection: tx.createSelection(props.path, match.index + 1)
-    //     }
-    //   }
-    // }.bind(this))
+    props.editorSession.transaction(tx => {
+
+      // Selection for the macro text used to...
+      var selection = tx.createSelection({
+        type: 'property',
+        path: props.path, 
+        startOffset: match.index,
+        endOffset: match.index + match[0].length
+      })
+
+      // Delete the macro text
+      tx.update(selection.path, {
+        type: 'delete',
+        start: selection.start.offset,
+        end: selection.end.offset
+      })
+
+      // Set cursor position and insert the new node
+      tx.setSelection({
+        type: 'property',
+        path: props.path,
+        startOffset: selection.start.offset
+      })
+      let nodeData = this.createNodeData(match)
+      tx.insertInlineNode(nodeData)
+    })
   }
 
 }
