@@ -14,6 +14,8 @@ export { default as MemoryBuffer } from './src/backend/MemoryBuffer'
 
 export { default as DocumentEditor } from './src/document/DocumentEditor'
 export { default as DocumentPage } from './src/document/DocumentPage'
+
+export { default as DocumentDocxConverter } from './src/document/DocumentDocxConverter'
 export { default as DocumentHTMLConverter } from './src/document/DocumentHTMLConverter'
 export { default as DocumentMarkdownConverter } from './src/document/DocumentMarkdownConverter'
 export { default as DocumentConfigurator } from './src/document/DocumentConfigurator'
