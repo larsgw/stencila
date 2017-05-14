@@ -62,9 +62,8 @@ export default class DocumentDocxConverter {
       let shtml = DefaultDOMElement.parseHTML(html).find('.content').getInnerHTML()
       let phtml = this.exportContent(shtml)
 
-      let convert
       if (options.converter === 'pandoc') {
-        convert = HostInstance.post('Pandoc').then(pandoc => {
+        return HostInstance.post('Pandoc').then(pandoc => {
           // This assumes that the filesystem converter is being used so that we
           // can get pandoc to output directly to a file. But the alternative is to 
           // get pandoc to return bytes, so that they can be written to any storer
@@ -74,14 +73,12 @@ export default class DocumentDocxConverter {
       } else {
         // This is only here for being able to test this independently of running
         // a peer which provides Pandoc
-        convert = Promise.resolve(`DocumentDocxConverter.exportDocument was run with converter: ${options.converter}`)
+        return storer.writeFile(
+          storer.getMainFilePath(),
+          'text/plain', 
+          `DocumentDocxConverter.exportDocument was run with converter: ${options.converter}`
+        )
       }
-
-      return convert.then(() => {
-        // Nothing is being done here. But if, instead of passing the `output` option to pandoc
-        // above, we got the docx content back, we would get the storer to write it here.
-        return true
-      })
     })
   }
 
