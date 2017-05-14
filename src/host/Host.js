@@ -11,7 +11,7 @@ import ContextHttpClient from '../context/ContextHttpClient'
 export default class Host {
 
   constructor (options = {}) {
-    if (options.discover === undefined) options.discover = 10
+    if (options.discover === undefined && typeof window !== 'undefined') options.discover = 10
 
     /**
      * Instances managed by this host
