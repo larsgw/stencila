@@ -1,5 +1,7 @@
 import { GET, POST } from '../util/requests'
 import JsContext from '../js-context/JsContext'
+
+import GenericHttpClient from './GenericHttpClient'
 import ContextHttpClient from '../context/ContextHttpClient'
 
 /**
@@ -71,7 +73,7 @@ export default class Host {
               if (spec.base === 'Context') {
                 instance = new ContextHttpClient(url + '/' + address)
               } else {
-                throw new Error(`Unsupported type: %{path}`)
+                instance = new GenericHttpClient(url + '/' + address)
               }
               this._instances[address] = instance
               return instance
