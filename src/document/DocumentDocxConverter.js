@@ -108,10 +108,43 @@ export default class DocumentDocxConverter {
    */
   exportContent (html, options = {}) {
 
-    // Parse the HTML into a DOM and if there is a div.content, just use that
-    let dom = DefaultDOMElement.parseHTML(html)
-    let content = dom.find('.content')
-    if (!content) content = dom
+    let doc = DefaultDOMElement.parseHTML(html)
+    let content = doc.find('.content')
+    if (!content) content = doc
+    let $$ = tag => content.createElement(tag)
+
+    let footnotes = $$('ol')
+
+    for (let input of content.findAll('input')) {
+      let index = footnotes.children.length + 1
+
+      let name = input.attr('name')
+      let value = input.attr('value')
+      
+      let parent = input.getParent()
+      let a = parent.createElement('a').attr({
+        href: `#fn${index}`,
+        class: 'footnoteRef',
+        id: `fnref${index}`
+      }).append(
+        $$('sup').text(`${index}`)
+      )
+      parent.insertBefore(parent.createTextNode(value), input)
+      parent.replaceChild(input, a)
+
+      let footnote = $$('li').attr({
+        id: `fn${index}`
+      }).append(
+        $$('a').attr('href', `#fnref${index}`).text('↩')
+      )
+      footnotes.append(footnote)
+    }
+
+    if (footnotes.children.length) {
+      content.append(
+        $$('div').addClass('footnotes').append(footnotes)
+      )
+    }
 
     return content.getInnerHTML()
   }
