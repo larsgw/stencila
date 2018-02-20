@@ -20,6 +20,8 @@ import TestValueComponent from '../shared/TestValueComponent'
 import ImageValueComponent from '../shared/ImageValueComponent'
 import PlotlyValueComponent from '../shared/PlotlyValueComponent'
 
+import DropTable from './DropTable'
+
 import {
   SetLanguageCommand, ToggleAllCodeCommand,
   HideCellCodeCommand, InsertCellCommand,
@@ -50,7 +52,7 @@ export default {
 
     config.addComponent('repro-fig', ReproFigComponent)
     config.addComponent('repro-fig-preview', ReproFigPreview)
-    
+
     config.addCommand('insert-repro-fig', InsertReproFigCommand, {
       commandGroup: 'insert-repro-figure',
       nodeType: 'repro-fig'
@@ -177,6 +179,8 @@ export default {
 
     config.addKeyboardShortcut('CommandOrControl+Alt+L', { command: 'show-all-code' })
     config.addKeyboardShortcut('CommandOrControl+Alt+O', { command: 'hide-all-code' })
+
+    config.addDropHandler(DropTable)
 
   }
 }

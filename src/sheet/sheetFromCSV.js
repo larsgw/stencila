@@ -1,4 +1,3 @@
-
 import { DefaultDOMElement } from 'substance'
 
 const SHEET_XML = `<?xml version="1.0"?>
