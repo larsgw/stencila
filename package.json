@@ -57,7 +57,7 @@
     "lodash.merge": "4.6.0",
     "prismjs": "1.9.0",
     "substance-bundler": "^0.20.10",
-    "substance-test": "^0.9.3",
+    "substance-test": "^0.9.4",
     "tape": "^4.6.3"
   },
   "publishConfig": {

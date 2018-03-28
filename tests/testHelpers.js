@@ -1,7 +1,7 @@
 import { isFunction, DefaultDOMElement, EditorSession } from 'substance'
-import { Host } from '../index.es'
+import { Host, MemoryBuffer, Project, setupStencilaContext, StencilaArchive } from '../index.es'
 import TestBackend from './backend/TestBackend'
-
+import testVFS from '../../tmp/test-vfs.js'
 
 export function spy(self, name) {
   var f
@@ -73,3 +73,22 @@ export function setupEditorSession(documentId) {
   })
   return {editorSession, doc}
 }
+
+export function setupProject(archiveId) {
+  let buffer = new MemoryBuffer()
+  let archive = new StencilaArchive(testVFS, buffer)
+
+  archive.load(archiveId)
+    .then(() => {
+      return setupStencilaContext(archive)
+    }).then(({host, functionManager, engine}) => {
+      return $$(Project, {
+        documentArchive: archive,
+        host,
+        functionManager,
+        engine
+      })
+    })
+}
+
+export function setupProject(archiveId) {
