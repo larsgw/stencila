@@ -1,9 +1,7 @@
 import { isFunction, DefaultDOMElement } from 'substance'
-import { SheetAdapter, SheetLoader } from '../index.es'
-import Engine from '../src/engine/Engine'
+import { Engine, FunctionManager, SheetAdapter, SheetLoader } from '../index.es'
 import JsContext from '../src/contexts/JsContext'
 import MiniContext from '../src/contexts/MiniContext'
-import FunctionManager from '../src/function/FunctionManager'
 import { libtestXML, libtest } from './contexts/libtest'
 import readFixture from './fixture/readFixture'
 
@@ -95,7 +93,7 @@ export function setupEngine() {
     functionManager
   }
   miniContext = new MiniContext(host)
-  let engine = new Engine(host)
+  let engine = new Engine({ host })
   let graph = engine._graph
   return { host, engine, graph }
 }

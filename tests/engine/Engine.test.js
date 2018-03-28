@@ -1,16 +1,12 @@
 import test from 'tape'
-import Engine from '../../src/engine/Engine'
-import JsContext from '../../src/contexts/JsContext'
-import MiniContext from '../../src/contexts/MiniContext'
-import FunctionManager from '../../src/function/FunctionManager'
-import { libtestXML, libtest } from '../contexts/libtest'
 import { UNKNOWN } from '../../src/engine/CellStates'
 import { RuntimeError } from '../../src/engine/CellErrors'
 import { queryCells } from '../../src/shared/cellHelpers'
+import { setupEngine } from '../testHelpers'
 
 test('Engine: simple sheet', t=> {
   t.plan(1)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let sheet = engine.addSheet({
     id: 'sheet1',
     // default lang
@@ -28,7 +24,7 @@ test('Engine: simple sheet', t=> {
 
 test('Engine: simple doc', t => {
   t.plan(1)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -47,7 +43,7 @@ test('Engine: simple doc', t => {
 
 test('Engine: single cell', t => {
   t.plan(9)
-  let { engine, graph } = _setup()
+  let { engine, graph } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -90,7 +86,7 @@ test('Engine: single cell', t => {
 
 test('Engine: sheet', t=> {
   t.plan(4)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let sheet = engine.addSheet({
     id: 'sheet1',
     // default lang
@@ -127,7 +123,7 @@ test('Engine: sheet', t=> {
 
 test('Engine: range expression', t=> {
   t.plan(4)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let sheet = engine.addSheet({
     id: 'sheet1',
     lang: 'mini',
@@ -177,7 +173,7 @@ test('Engine: range expression', t=> {
 */
 test('Engine: graph errors should not be cleared without resolving', t => {
   t.plan(2)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -203,7 +199,7 @@ test('Engine: graph errors should not be cleared without resolving', t => {
 
 test('Engine: runtime errors should be wiped when inputs are updated', t => {
   t.plan(2)
-  let { engine, graph } = _setup()
+  let { engine, graph } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -230,7 +226,7 @@ test('Engine: runtime errors should be wiped when inputs are updated', t => {
 
 test('Engine (Document): inserting a cell', t => {
   t.plan(1)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -255,7 +251,7 @@ test('Engine (Document): inserting a cell', t => {
 
 test('Engine (Document): removing a cell', t => {
   t.plan(1)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -277,7 +273,7 @@ test('Engine (Document): removing a cell', t => {
 
 test('Engine (Document): updating a cell', t => {
   t.plan(1)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -297,7 +293,7 @@ test('Engine (Document): updating a cell', t => {
 
 test('Engine (Sheet): column names', t => {
   t.plan(2)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let sheet = engine.addSheet({
     id: 'sheet1',
     lang: 'mini',
@@ -316,7 +312,7 @@ test('Engine (Sheet): column names', t => {
 
 test('Engine (Sheet): cell expressions', t => {
   t.plan(2)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let sheet = engine.addSheet({
     id: 'sheet1',
     lang: 'mini',
@@ -348,7 +344,7 @@ test('Engine: changing a range expression', t=> {
   // Note: internally we instantiate a proxy cell
   // which should be pruned automatically if it is not needed anymore
   t.plan(4)
-  let { engine, graph } = _setup()
+  let { engine, graph } = setupEngine()
   let sheet = engine.addSheet({
     id: 'sheet1',
     lang: 'mini',
@@ -372,7 +368,7 @@ test('Engine: changing a range expression', t=> {
 
 test('Engine: inverse range expression are normalized', t=> {
   t.plan(1)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let sheet = engine.addSheet({
     id: 'sheet1',
     lang: 'mini',
@@ -391,7 +387,7 @@ test('Engine: inverse range expression are normalized', t=> {
 
 test('Engine: no context for lang', t => {
   t.plan(1)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'foo',
@@ -408,7 +404,7 @@ test('Engine: no context for lang', t => {
 
 test('Engine: lost context', t => {
   t.plan(2)
-  let { engine, host } = _setup()
+  let { engine, host } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -433,7 +429,7 @@ test('Engine: lost context', t => {
 
 test('Engine: transclusion', t => {
   t.plan(2)
-  let { engine } = _setup()
+  let { engine } = setupEngine()
   let doc = engine.addDocument({
     id: 'doc1',
     lang: 'mini',
@@ -524,38 +520,4 @@ function _getErrors(cells) {
       return err.name || 'unknown'
     })
   })
-}
-
-function _setup() {
-  // A JsContext with the test function library
-  let jsContext = new JsContext()
-  let miniContext
-  jsContext.importLibrary('test', libtest)
-  // Function manager for getting function specs
-  let functionManager = new FunctionManager()
-  functionManager.importLibrary('test', libtestXML)
-  // A mock Host that provides the JsContext when requested
-  let host = {
-    _disable(val) {
-      this._disabled = val
-    },
-    createContext: function(lang) {
-      if (this._disabled) {
-        return Promise.resolve(new Error('No context for language '+lang))
-      }
-      switch (lang) {
-        case 'js':
-          return Promise.resolve(jsContext)
-        case 'mini':
-          return Promise.resolve(miniContext)
-        default:
-          return Promise.resolve(new Error('No context for language '+lang))
-      }
-    },
-    functionManager
-  }
-  miniContext = new MiniContext(host)
-  let engine = new Engine({ host })
-  let graph = engine._graph
-  return { host, engine, graph }
 }
