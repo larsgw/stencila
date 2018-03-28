@@ -5,11 +5,10 @@ import SheetEditor from '../../src/sheet/SheetEditor'
 // Integration tests for src/sheet
 test('Sheet: add row', (t) => {
   const sandbox = getSandbox(t)
-  //let context = setupEngine()
   let {context, editorSession} = setupSheetEditorSession('blankSheet.xml')
   const sheetEditor = new SheetEditor(null, {
     editorSession
-  }, {context: context})
+  }, { context })
 
   sheetEditor.mount(sandbox)
 
