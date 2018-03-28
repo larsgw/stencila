@@ -1,16 +1,18 @@
 import test from 'tape'
-import { isNil } from 'substance'
-import { getSandbox, setupEditorSession } from '../testHelpers'
+import { getSandbox, setupEngine, setupSheetEditorSession } from '../testHelpers'
 import SheetEditor from '../../src/sheet/SheetEditor'
 
 // Integration tests for src/sheet
 test('Sheet: add row', (t) => {
   const sandbox = getSandbox(t)
-  const editorSession = setupEditorSession()
-  const sheet = SheetEditor.mount({
+  //let context = setupEngine()
+  let {context, editorSession} = setupSheetEditorSession('blankSheet.xml')
+  const sheetEditor = new SheetEditor(null, {
     editorSession
-  }, sandbox)
+  }, {context: context})
 
-  t.ok(sheet.isMounted(), 'SheetEditor should be mounted')
+  sheetEditor.mount(sandbox)
+
+  t.ok(sheetEditor.isMounted(), 'SheetEditor should be mounted')
   t.end()
 })

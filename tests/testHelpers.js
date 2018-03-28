@@ -1,7 +1,11 @@
-import { isFunction, DefaultDOMElement, EditorSession } from 'substance'
-import { Host, MemoryBuffer, Project, setupStencilaContext, StencilaArchive } from '../index.es'
-import TestBackend from './backend/TestBackend'
-import testVFS from '../../tmp/test-vfs.js'
+import { isFunction, DefaultDOMElement } from 'substance'
+import { SheetAdapter, SheetLoader } from '../index.es'
+import Engine from '../src/engine/Engine'
+import JsContext from '../src/contexts/JsContext'
+import MiniContext from '../src/contexts/MiniContext'
+import FunctionManager from '../src/function/FunctionManager'
+import { libtestXML, libtest } from './contexts/libtest'
+import readFixture from './fixture/readFixture'
 
 export function spy(self, name) {
   var f
@@ -54,41 +58,44 @@ export function getSandbox(t) {
   return htmlDoc.find('body')
 }
 
-export function setupEditorSession(documentId) {
-  let configurator = new DocumentConfigurator() // eslint-disable-line
-  let docHTML
-  if (!documentId) {
-    docHTML = ''
-  } else {
-    let backend = new TestBackend()
-    const entry = backend._getEntry(documentId)
-    docHTML = entry.content
+export function setupSheetEditorSession(sheet) {
+  let context = setupEngine()
+  const fixture = readFixture(sheet)
+  const editorSession = SheetLoader.load(fixture, context)
+  SheetAdapter.connect(context.engine, editorSession, sheet)
+  return {context, editorSession}
+}
+
+export function setupEngine() {
+  // A JsContext with the test function library
+  let jsContext = new JsContext()
+  let miniContext
+  jsContext.importLibrary('test', libtest)
+  // Function manager for getting function specs
+  let functionManager = new FunctionManager()
+  functionManager.importLibrary('test', libtestXML)
+  // A mock Host that provides the JsContext when requested
+  let host = {
+    _disable(val) {
+      this._disabled = val
+    },
+    createContext: function(lang) {
+      if (this._disabled) {
+        return Promise.resolve(new Error('No context for language '+lang))
+      }
+      switch (lang) {
+        case 'js':
+          return Promise.resolve(jsContext)
+        case 'mini':
+          return Promise.resolve(miniContext)
+        default:
+          return Promise.resolve(new Error('No context for language '+lang))
+      }
+    },
+    functionManager
   }
-  let doc = documentConversion.importHTML(docHTML) // eslint-disable-line
-  let editorSession = new EditorSession(doc, {
-    configurator: configurator,
-    context: {
-      host: new Host({ discover: false })
-    }
-  })
-  return {editorSession, doc}
+  miniContext = new MiniContext(host)
+  let engine = new Engine(host)
+  let graph = engine._graph
+  return { host, engine, graph }
 }
-
-export function setupProject(archiveId) {
-  let buffer = new MemoryBuffer()
-  let archive = new StencilaArchive(testVFS, buffer)
-
-  archive.load(archiveId)
-    .then(() => {
-      return setupStencilaContext(archive)
-    }).then(({host, functionManager, engine}) => {
-      return $$(Project, {
-        documentArchive: archive,
-        host,
-        functionManager,
-        engine
-      })
-    })
-}
-
-export function setupProject(archiveId) {

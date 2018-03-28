@@ -253,21 +253,10 @@ function buildEnv() {
 
 // reads all fixtures from /tests/ and writes them into a script
 function buildTestBackend() {
-  b.custom('Creating test backend...', {
-    src: ['./tests/document/fixtures/**/*'],
+  vfs(b, {
+    src: ['./tests/fixture/**/*.xml'],
     dest: './tmp/test-vfs.js',
-    execute(files) {
-      const rootDir = b.rootDir
-      const vfs = {}
-      files.forEach((f) => {
-        if (b.isDirectory(f)) return
-        let content = fs.readFileSync(f).toString()
-        let relPath = path.relative(rootDir, f).replace(/\\/g, '/')
-        vfs[relPath] = content
-      })
-      const data = ['export default ', JSON.stringify(vfs, null, 2)].join('')
-      b.writeFileSync('tmp/test-vfs.js', data)
-    }
+    format: 'es', moduleName: 'vfs'
   })
 }
 
