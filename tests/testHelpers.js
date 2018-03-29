@@ -1,5 +1,8 @@
 import { isFunction, DefaultDOMElement } from 'substance'
-import { Engine, FunctionManager, SheetAdapter, SheetLoader } from '../index.es'
+import {
+  ArticleAdapter, ArticleLoader, Engine,
+  FunctionManager, SheetAdapter, SheetLoader
+} from '../index.es'
 import JsContext from '../src/contexts/JsContext'
 import MiniContext from '../src/contexts/MiniContext'
 import { libtestXML, libtest } from './contexts/libtest'
@@ -54,6 +57,14 @@ export function getSandbox(t) {
   // otherwise we create our own DOM
   let htmlDoc = DefaultDOMElement.parseHTML('<html><body></body></html>')
   return htmlDoc.find('body')
+}
+
+export function setupArticleEditorSession(sheet) {
+  let context = setupEngine()
+  const fixture = readFixture(sheet)
+  const editorSession = ArticleLoader.load(fixture, context)
+  ArticleAdapter.connect(context.engine, editorSession, sheet)
+  return {context, editorSession}
 }
 
 export function setupSheetEditorSession(sheet) {
