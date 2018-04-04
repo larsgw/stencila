@@ -18,8 +18,9 @@ Stencila functions can be implemented using Javascript. To match Stencila's call
 
 ```js
 function square(value) {
-  return value * value
+  return value * value
 }
+square.pars = ['value']
 ```
 
 
